@@ -1,0 +1,38 @@
+Question 1: Student Attendance System
+Collection: HashSet<String> 
+removes duplicates, no guaranteed order
+insertion order preserved → LinkedHashSet<String>
+
+Question 2: Shopping Cart System
+Collection: ArrayList<String> 
+allows duplicates, maintains order
+
+Question 3: Count Number of Each Product
+Collection: HashMap<String, Integer>
+Key: Product name
+Value: Count
+
+Question 4: Remove Duplicate Numbers
+Collection: HashSet<Integer>  
+If order matters then LinkedHashSet<Integer>.
+
+Question 5: Maintain Order of Tasks
+Collection: LinkedList<String> or ArrayList<String> (both preserve insertion order).
+
+Question 6: Find Highest Score
+Collection: ArrayList<Integer> or simply an int[].
+Use Collections.max(list) or iterate manually
+
+Question 7: Queue System (First Come First Serve)
+Collection: Queue<String>
+
+Question 8: Store Employee ID and Name
+Collection: HashMap<Integer, String>
+Key: Employee ID
+Value: Employee Name
+
+Question 9: Sort Names
+Collection: ArrayList<String> + Collections.sort(list).
+
+Question 10: Find Duplicate Elements
+Collection: Use HashSet<Integer> to track seen elements, another Set<Integer> for duplicates
