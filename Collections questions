@@ -1,38 +1,122 @@
 Question 1: Student Attendance System
 Collection: HashSet<String> 
 removes duplicates, no guaranteed order
-insertion order preserved → LinkedHashSet<String>
+insertion order preserved: LinkedHashSet<String>
+import java.util.*;
+public class AttendanceSystem {
+    public static void main(String[] args) {
+        Set<String> students = new LinkedHashSet<>();
+        students.add("Rahul");
+        students.add("Amit");
+        students.add("Neha");
+        students.add("Rahul");
+        for(String s : students) {System.out.println(s);}}}
 
 Question 2: Shopping Cart System
 Collection: ArrayList<String> 
 allows duplicates, maintains order
+import java.util.*;
+public class ShoppingCart {
+    public static void main(String[] args) {
+        List<String> cart = new ArrayList<>();
+        cart.add("Milk");
+        cart.add("Bread");
+        cart.add("Milk");
+        cart.add("Egg");
+        for(String item : cart) {System.out.println(item);}}}
 
 Question 3: Count Number of Each Product
 Collection: HashMap<String, Integer>
 Key: Product name
 Value: Count
+import java.util.*;
+public class ProductCount {
+    public static void main(String[] args) {
+        String[] products = {"Apple", "Mango", "Apple", "Banana", "Mango", "Apple"};
+        Map<String, Integer> countMap = new HashMap<>();
+        for(String p : products) {
+            countMap.put(p, countMap.getOrDefault(p, 0) + 1);}
+        for(Map.Entry<String, Integer> entry : countMap.entrySet()) {System.out.println(entry.getKey() + " : " + entry.getValue());}}}
 
 Question 4: Remove Duplicate Numbers
 Collection: HashSet<Integer>  
 If order matters then LinkedHashSet<Integer>.
+import java.util.*;
+public class RemoveDuplicates {
+    public static void main(String[] args) {
+        int[] nums = {1, 2, 3, 2, 4, 1};
+        Set<Integer> unique = new LinkedHashSet<>();
+        for(int n : nums) {
+            unique.add(n);
+        }
+        System.out.println(unique);}}
 
 Question 5: Maintain Order of Tasks
 Collection: LinkedList<String> or ArrayList<String> (both preserve insertion order).
+import java.util.*;
+public class TaskOrder {
+    public static void main(String[] args) {
+        List<String> tasks = new ArrayList<>();
+        tasks.add("Task1");
+        tasks.add("Task2");
+        tasks.add("Task3");
+        for(String t : tasks) {
+            System.out.println(t);}}}
 
 Question 6: Find Highest Score
 Collection: ArrayList<Integer> or simply an int[].
 Use Collections.max(list) or iterate manually
+import java.util.*;
+public class HighestScore {
+    public static void main(String[] args) {
+        int[] scores = {45, 67, 89, 34};
+        int max = Arrays.stream(scores).max().getAsInt();
+        System.out.println("Highest Score: " + max);}}
 
 Question 7: Queue System (First Come First Serve)
 Collection: Queue<String>
+import java.util.*;
+public class HospitalQueue {
+    public static void main(String[] args) {
+        Queue<String> queue = new LinkedList<>();
+        queue.add("Patient1");
+        queue.add("Patient2");
+        queue.add("Patient3");
+        while(!queue.isEmpty()) {
+            System.out.println("Serving: " + queue.poll());}}}
 
 Question 8: Store Employee ID and Name
 Collection: HashMap<Integer, String>
 Key: Employee ID
 Value: Employee Name
+import java.util.*;
+public class EmployeeMap {
+    public static void main(String[] args) {
+        Map<Integer, String> employees = new HashMap<>();
+        employees.put(101, "Rahul");
+        employees.put(102, "Amit");
+        employees.put(103, "Neha");
+        for(Map.Entry<Integer, String> entry : employees.entrySet()) {
+            System.out.println(entry.getKey() + " " + entry.getValue());}}}
 
 Question 9: Sort Names
 Collection: ArrayList<String> + Collections.sort(list).
+import java.util.*;
+public class SortNames {
+    public static void main(String[] args) {
+        List<String> names = new ArrayList<>(Arrays.asList("Rahul", "Amit", "Neha"));
+        Collections.sort(names);
+        System.out.println(names);}}
 
 Question 10: Find Duplicate Elements
 Collection: Use HashSet<Integer> to track seen elements, another Set<Integer> for duplicates
+import java.util.*;
+public class FindDuplicates {
+    public static void main(String[] args) {
+        int[] nums = {1, 2, 3, 2, 4, 1};
+        Set<Integer> seen = new HashSet<>();
+        Set<Integer> duplicates = new HashSet<>();
+        for(int n : nums) {
+            if(!seen.add(n)) {
+                duplicates.add(n);}}
+        System.out.println("Duplicates: " + duplicates);}}
