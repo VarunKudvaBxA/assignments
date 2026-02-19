@@ -1,0 +1,87 @@
+import java.util.Scanner;
+class SimpleArrayHashSet {
+    private int[] data;
+    private int size;
+    public SimpleArrayHashSet(int capacity) {
+        data = new int[capacity];
+        size = 0;
+    }
+    public void add(int value) {
+        if (!contains(value)) {
+            if (size < data.length) {
+                data[size++] = value;
+            } else {
+                System.out.println("Set is full, cannot add more elements.");
+            }
+        }
+    }
+    public void remove(int value) {
+        for (int i = 0; i < size; i++) {
+            if (data[i] == value) {
+                // shift elements left
+                for (int j = i; j < size - 1; j++) {
+                    data[j] = data[j + 1];
+                }
+                size--;
+                return;
+            }
+        }
+    }
+    public boolean contains(int value) {
+        for (int i = 0; i < size; i++) {
+            if (data[i] == value) {
+                return true;
+            }
+        }
+        return false;
+    }
+    public int size() {
+        return size;
+    }
+    public void display() {
+        System.out.print("Current elements: ");
+        for (int i = 0; i < size; i++) {
+            System.out.print(data[i] + " ");
+        }
+        System.out.println();
+    }
+}
+public class Hashprg {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        SimpleArrayHashSet set = new SimpleArrayHashSet(3);
+        while (true) {
+            System.out.println("\nChoose operation: add, remove, contains, size, display, exit");
+            String operation = scanner.next();
+            if (operation.equalsIgnoreCase("exit")) {
+                break;
+            }
+            switch (operation.toLowerCase()) {
+                case "add":
+                    System.out.print("Enter number: ");
+                    int numAdd = scanner.nextInt();
+                    set.add(numAdd);
+                    break;
+                case "remove":
+                    System.out.print("Enter number: ");
+                    int numRemove = scanner.nextInt();
+                    set.remove(numRemove);
+                    System.out.println(numRemove + " removed.");
+                    break;
+                case "contains":
+                    System.out.print("Enter number: ");
+                    int numCheck = scanner.nextInt();
+                    System.out.println(set.contains(numCheck) ? "Present" : "Not present");
+                    break;
+                case "size":
+                    System.out.println("Size of set: " + set.size());
+                    break;
+                case "display":
+                    set.display();
+                    break;
+                default:
+                    System.out.println("Invalid operation.");
+            }}
+        scanner.close();
+    }
+}
