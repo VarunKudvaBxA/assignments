@@ -1,0 +1,153 @@
+CREATE TABLE department (
+    department_id SERIAL PRIMARY KEY,
+    department_name VARCHAR(100) NOT NULL);
+CREATE TABLE address (
+    address_id SERIAL PRIMARY KEY,
+    street_address VARCHAR(200),
+    city VARCHAR(100),
+    state VARCHAR(100),
+    postal_code VARCHAR(20));
+CREATE TABLE student (
+    student_id SERIAL PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    birthdate DATE,
+    department_id INT REFERENCES department(department_id),
+    address_id INT REFERENCES address(address_id));
+INSERT INTO department (department_name) VALUES ('Computer Science'), ('Mathematics'), ('Mechanical Engineering'),('Electrical Engineering');
+INSERT INTO address (street_address, city, state, postal_code) VALUES('520 Pine Rd', 'Springfield', 'IL', '62704'),('123 Main St', 'New York', 'NY', '10001'),
+('456 Oak Ave', 'Chicago', 'IL', '60616');
+INSERT INTO student (first_name, last_name, birthdate, department_id, address_id) VALUES('John', 'Doe', '1996-05-12', 1, 1),('Jane', 'Smith', '1997-02-20', 2, 2),
+('Mike', 'Brown', '1995-11-03', 3, 3);
+
+SELECT COUNT(*) AS total_students FROM student;
+SELECT d.department_name FROM student s JOIN department d ON s.department_id = d.department_id WHERE s.first_name = 'John';
+SELECT d.department_name, COUNT(s.student_id) AS student_count FROM department d LEFT JOIN student s ON d.department_id = s.department_id GROUP BY d.department_name;
+SELECT s.first_name, s.last_name, d.department_name, a.city, a.street_address FROM student s JOIN department d ON s.department_id = d.department_id JOIN address a ON s.address_id = a.address_id;
+SELECT s.first_name, s.last_name FROM student s JOIN department d ON s.department_id = d.department_id WHERE d.department_name = 'Computer Science';
+UPDATE address SET city = 'New York' WHERE address_id = (SELECT address_id FROM student WHERE first_name = 'Jane');
+DELETE FROM student WHERE student_id = 3;
+SELECT s.first_name, s.last_name, d.department_name, a.city FROM student s JOIN department d ON s.department_id = d.department_id JOIN address a ON s.address_id = a.address_id WHERE a.city = 'New York';
+SELECT d.department_name, COUNT(s.student_id) FROM department d LEFT JOIN student s ON d.department_id = s.department_id GROUP BY d.department_name;
+SELECT s.first_name, s.last_name FROM student s JOIN address a ON s.address_id = a.address_id WHERE a.city = 'Springfield';
+SELECT * FROM student WHERE EXTRACT(MONTH FROM birthdate) = 2;
+SELECT d.department_name, a.city, a.street_address FROM student s JOIN department d ON s.department_id = d.department_id JOIN address a ON s.address_id = a.address_id WHERE s.first_name = 'John';
+SELECT * FROM student WHERE birthdate BETWEEN '1995-01-01' AND '1998-12-31';
+SELECT s.first_name, s.last_name, d.department_name FROM student s JOIN department d ON s.department_id = d.department_id ORDER BY d.department_name;
+SELECT d.department_name, COUNT(s.student_id) FROM student s JOIN department d ON s.department_id = d.department_id JOIN address a ON s.address_id = a.address_id WHERE a.city = 'Champaign' GROUP BY d.department_name;
+SELECT s.first_name, s.last_name FROM student s JOIN address a ON s.address_id = a.address_id WHERE a.street_address LIKE '%Pine%';
+UPDATE student SET department_id = (SELECT department_id FROM department WHERE department_name = 'Mechanical Engineering') WHERE student_id = 6;
+SELECT s.first_name, s.last_name FROM student s JOIN department d ON s.department_id = d.department_id JOIN address a ON s.address_id = a.address_id WHERE a.city = 'Chicago' AND d.department_name = 'Mathematics';
+SELECT s.first_name, s.last_name FROM student s JOIN address a ON s.address_id = a.address_id WHERE a.city IN ('Urbana', 'Peoria');
+SELECT MAX(student_id) FROM student;
+SELECT s.first_name, s.last_name FROM student s JOIN department d ON s.department_id = d.department_id WHERE d.department_name <> 'Computer Science';
+SELECT COUNT(*) FROM address WHERE city = 'Champaign';
+SELECT s.first_name, s.last_name FROM student s JOIN address a ON s.address_id = a.address_id WHERE a.street_address = '520 Pine Rd';
+SELECT AVG(EXTRACT(YEAR FROM AGE(birthdate))) AS avg_age FROM student s JOIN department d ON s.department_id = d.department_id WHERE d.department_name = 'Electrical Engineering';
+SELECT s.first_name, s.last_name, d.department_name, a.city FROM student s JOIN department d ON s.department_id = d.department_id JOIN address a ON s.address_id = a.address_id WHERE d.department_name LIKE 'M%';
+DELETE FROM student WHERE department_id = (SELECT department_id FROM department WHERE department_name = 'Mechanical Engineering');
+
+
+
+
+
+
+
+-- 1) Orders with Customer Details and Status
+SELECT o.order_id, c.customer_name, s.status_name
+FROM orders o
+JOIN customers c ON o.customer_id = c.customer_id
+JOIN status s ON o.status_id = s.status_id;
+
+-- 2) Total Value of Orders for a Customer in Time Period
+SELECT SUM(o.total_amount) AS total_value
+FROM orders o
+WHERE o.customer_id = 101 AND o.order_date BETWEEN '2025-01-01' AND '2025-12-31';
+
+-- 3) Most Expensive Order by Customer
+SELECT o.order_id, o.total_amount
+FROM orders o
+WHERE o.customer_id = 101
+ORDER BY o.total_amount DESC
+LIMIT 1;
+
+-- 4) Total Revenue per Product
+SELECT p.product_name, SUM(oi.quantity * oi.unit_price) AS revenue
+FROM order_items oi
+JOIN product p ON oi.product_id = p.product_id
+GROUP BY p.product_name;
+
+-- 5) Order ID, Customer ID, Total Amount
+SELECT o.order_id, o.customer_id, COALESCE(o.total_amount, 0.00) AS total_amount
+FROM orders o;
+
+-- 6) Order History with Product Details
+SELECT o.order_id, o.order_date, p.product_name, oi.quantity, oi.unit_price
+FROM orders o
+JOIN order_items oi ON o.order_id = oi.order_id
+JOIN product p ON oi.product_id = p.product_id
+WHERE o.customer_id = 101;
+
+-- 7) Average Order Value Last 30 Days
+SELECT AVG(o.total_amount) AS avg_order_value
+FROM orders o
+WHERE o.order_date >= CURRENT_DATE - INTERVAL '30 days';
+
+-- 8) Top 5 Products by Orders
+SELECT p.product_name, COUNT(*) AS order_count
+FROM order_items oi
+JOIN product p ON oi.product_id = p.product_id
+GROUP BY p.product_name
+ORDER BY order_count DESC
+LIMIT 5;
+
+-- 9) Customers with No Orders in Last 60 Days
+SELECT c.customer_id, c.customer_name
+FROM customers c
+WHERE NOT EXISTS (
+    SELECT 1 FROM orders o
+    WHERE o.customer_id = c.customer_id
+      AND o.order_date >= CURRENT_DATE - INTERVAL '60 days'
+);
+-- 10) Orders with Products Ordered More Than Once
+SELECT o.order_id, o.order_date
+FROM orders o
+JOIN order_items oi ON o.order_id = oi.order_id
+WHERE oi.quantity > 1
+ORDER BY o.order_date;
+
+-- 11) Orders and Revenue by Status
+SELECT s.status_name, COUNT(o.order_id) AS order_count, SUM(o.total_amount) AS total_revenue
+FROM orders o
+JOIN status s ON o.status_id = s.status_id
+GROUP BY s.status_name;
+
+-- 12) Customers Who Ordered More Than a Specific Product
+SELECT DISTINCT c.customer_name
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id
+JOIN order_items oi ON o.order_id = oi.order_id
+JOIN product p ON oi.product_id = p.product_id
+WHERE p.product_name = 'Laptop';
+
+-- 13) Products Never Ordered
+SELECT p.product_name
+FROM product p
+LEFT JOIN order_items oi ON p.product_id = oi.product_id
+WHERE oi.product_id IS NULL;
+
+-- 14) Total Quantity Ordered in Last 7 Days
+SELECT SUM(oi.quantity) AS total_quantity
+FROM order_items oi
+JOIN orders o ON oi.order_id = o.order_id
+WHERE o.order_date >= CURRENT_DATE - INTERVAL '7 days';
+
+-- 15) Create product_details View
+CREATE VIEW product_details AS
+SELECT * FROM product;
+
+-- 16) Create order_summary View
+CREATE VIEW order_summary AS
+SELECT o.order_id, o.customer_id, o.order_date, o.total_amount, s.status_name
+FROM orders o
+JOIN status s ON o.status_id = s.status_id;
