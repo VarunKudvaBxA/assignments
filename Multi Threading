@@ -1,0 +1,183 @@
+1)  One thread prints even numbers. One thread prints odd numbers. Numbers are printed alternately from 1 to 100
+class NumberPrinter {
+    private int number = 1;                                            // number: shared resource
+    private final int MAX = 100;
+    public synchronized void printOdd() {                              // synchronized: 1 thread at a time, lock is acquired
+        while (number <= MAX) {
+            if (number % 2 == 0) {
+                try {
+                    wait();                                            // wait(): releases obj lock, waits till other thread calls notify()
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();}
+            } else {
+                System.out.println("Odd Thread: " + number);
+                number++;
+                notify();}}}                                           // notify(): wakes up waiting thread, inter thread communication
+    public synchronized void printEven() {
+        while (number <= MAX) {                                        // while is used instead of if to prevent spurious wakeups, condition is rechecked
+            if (number % 2 != 0) {
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();}
+            } else {
+                System.out.println("Even Thread: " + number);
+                number++;
+                notify();}}}}
+public class EvenOddThreadExample {
+    public static void main(String[] args) {
+        NumberPrinter printer = new NumberPrinter();
+        Thread oddThread = new Thread(() -> printer.printOdd());
+        Thread evenThread = new Thread(() -> printer.printEven());
+        oddThread.start();
+        evenThread.start();}}
+
+2) Prime and non prime
+class PrimeNonPrimePrinter {
+    private int number = 1;
+    private final int MAX = 100;
+    public synchronized void printPrime() {
+        while (number <= MAX) {
+            if (!isPrime(number)) {
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();}
+            } else {
+                System.out.println("Prime Thread: " + number);
+                number++;
+                notify();}}}
+    public synchronized void printNonPrime() {
+        while (number <= MAX) {
+            if (isPrime(number)) {
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();}
+            } else {
+                System.out.println("Non-Prime Thread: " + number);
+                number++;
+                notify();}}}
+    private boolean isPrime(int n) {
+        if (n <= 1) return false;
+        if (n == 2) return true;
+        if (n % 2 == 0) return false;
+        for (int i = 3; i * i <= n; i += 2) {
+            if (n % i == 0)
+                return false;}
+        return true;}}
+public class PrimeNonPrimeThreadExample {
+    public static void main(String[] args) {
+        PrimeNonPrimePrinter printer = new PrimeNonPrimePrinter();
+        Thread primeThread = new Thread(() -> printer.printPrime());
+        Thread nonPrimeThread = new Thread(() -> printer.printNonPrime());
+        primeThread.start();
+        nonPrimeThread.start();}}
+
+3) a b c d with 4 different threads till 200
+class ABCDPrinter {
+    private int count = 0;
+    private final int MAX = 200;
+    private int turn = 0;                          // 0 -> A, 1-> B, 2-> C, 3-> D
+    public synchronized void printLetter(char letter, int threadTurn) {
+        while (count < MAX) {
+            while (turn != threadTurn) {
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();}}
+            if (count >= MAX) {
+                notifyAll();
+                break;}
+            System.out.print(letter + " ");
+            count++;
+            turn = (turn + 1) % 4;
+            notifyAll();}}}
+public class ABCDThreadExample {
+    public static void main(String[] args) {
+        ABCDPrinter printer = new ABCDPrinter();
+        Thread t1 = new Thread(() -> printer.printLetter('A', 0));
+        Thread t2 = new Thread(() -> printer.printLetter('B', 1));
+        Thread t3 = new Thread(() -> printer.printLetter('C', 2));
+        Thread t4 = new Thread(() -> printer.printLetter('D', 3));
+        t1.start();
+        t2.start();
+        t3.start();
+        t4.start();}}
+
+4) Producer Consumer Problem
+
+A shared buffer (queue), One Producer thread, One Consumer thread, Proper synchronization
+Must avoid: Overflow (producer adds when full), Underflow (consumer removes when empty)
+Wait() Used when: Buffer full → Producer waits, Buffer empty → Consumer waits
+
+import java.util.LinkedList;
+import java.util.Queue;
+class SharedBuffer {
+    private final Queue<Integer> buffer = new LinkedList<>();
+    private final int capacity = 5;
+    public synchronized void produce(int value) {
+        while (buffer.size() == capacity) {
+            try {
+                wait(); // wait if buffer is full
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();}}
+        buffer.add(value);
+        System.out.println("Produced: " + value);
+        notifyAll(); // notify consumer}
+    public synchronized int consume() {
+        while (buffer.isEmpty()) {
+            try {
+                wait(); // wait if buffer is empty
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();}}
+        int value = buffer.poll();
+        System.out.println("Consumed: " + value);
+        notifyAll(); // notify producer
+        return value;}}
+public class ProducerConsumerExample {
+    public static void main(String[] args) {
+        SharedBuffer buffer = new SharedBuffer();
+        Thread producer = new Thread(() -> {
+            int value = 1;
+            while (true) {
+                buffer.produce(value++);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();}}});
+        Thread consumer = new Thread(() -> {
+            while (true) {
+                buffer.consume();
+                try {
+                    Thread.sleep(800);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();}}});
+        producer.start();
+        consumer.start();}}
+
+better one with blocking queue as it automatically handles synchronization
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+public class ProducerConsumerBlockingQueue {
+    public static void main(String[] args) {
+        BlockingQueue<Integer> queue = new ArrayBlockingQueue<>(5);
+        Thread producer = new Thread(() -> {
+            int value = 1;
+            while (true) {
+                try {
+                    queue.put(value);
+                    System.out.println("Produced: " + value++);
+                    Thread.sleep(500);
+                } catch (Exception e) {
+                    Thread.currentThread().interrupt();}}});
+        Thread consumer = new Thread(() -> {
+            while (true) {
+                try {
+                    int value = queue.take();
+                    System.out.println("Consumed: " + value);
+                    Thread.sleep(800);
+                } catch (Exception e) {
+                    Thread.currentThread().interrupt();}}});
+        producer.start();
+        consumer.start();}}
