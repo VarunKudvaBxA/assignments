@@ -1,0 +1,75 @@
+1) Create a generic class Box<T> that: Stores a single value of type T Has: void set(T value), T get(), Override toString() to print the value 
+
+class Box<T> {                                 <T> type parameter, class becomes reusable and type-safe
+    private T value;
+    public void set(T value) {
+        this.value = value;}
+    public T get() {
+        return value;}
+    @Override
+    public String toString() {
+        return String.valueOf(value);}
+}
+
+ex: Box<String> box1 = new Box<>(); box1.set("Hello");
+    Box<Integer> box2 = new Box<>(); box2.set(100);
+System.out.println(box1.get());  // Hello
+System.out.println(box2.get());  //100
+
+2) Write a generic static method: public static <T extends Comparable<T>> T findMax(T a, T b, T c) 
+Requirements: Return the largest of three values. Must work with: Integer Double String 
+Any custom class implementing Comparable 
+Example: findMax(10, 20, 5);           // 20  findMax("A", "Z", "M");       // Z
+
+public class GenericUtils {
+    public static <T extends Comparable<T>> T findMax(T a, T b, T c) {
+        T max = a;
+        if (b.compareTo(max) > 0) {
+            max = b;}
+        if (c.compareTo(max) > 0) {
+            max = c;}
+        return max;}}
+
+3) Implement a generic class: class Stack<T> 
+Requirements: Use an internal array, Methods: void push(T value), T pop(), T peek(), boolean isEmpty(), Resize array when full (dynamic resizing) 
+Ex:Stack<String> stack = new Stack<>(); stack.push("A"); stack.push("B"); System.out.println(stack.pop());  // B
+
+class Stack<T> {
+    private T[] elements;
+    private int size = 0;
+    private static final int DEFAULT_CAPACITY = 10;
+    @SuppressWarnings("unchecked")
+    public Stack() {
+        elements = (T[]) new Object[DEFAULT_CAPACITY];}          Java does not allow direct generic array creation. So we create an Object[] and cast it to T[]
+    public void push(T value) {
+        if (size == elements.length) {
+            resize();}
+        elements[size++] = value;}
+    public T pop() {
+        if (isEmpty()) {
+            throw new RuntimeException("Stack is empty");}
+        T value = elements[--size];
+        elements[size] = null; // Avoid memory leak
+        return value;}
+    public T peek() {
+        if (isEmpty()) {
+            throw new RuntimeException("Stack is empty");}
+        return elements[size - 1];}
+    public boolean isEmpty() {
+        return size == 0;}
+    private void resize() {
+        @SuppressWarnings("unchecked")
+        T[] newArray = (T[]) new Object[elements.length * 2];
+        System.arraycopy(elements, 0, newArray, 0, elements.length);
+        elements = newArray;}}
+
+4) Implement a generic method: public static <T> void copy( List<? super T> destination, List<? extends T> source) 
+Requirements: Copy all elements from source to destination. Follow PECS rule 
+Should work for: List<Integer> integers = List.of(1, 2, 3); List<Number> numbers = new ArrayList<>(); copy(numbers, integers); After copy, numbers should contain [1, 2, 3]. 
+
+public static <T> void copy(
+    List<? super T> destination,                    Destination CONSUMES data. We add items into it. Could be List<Number> or List<Object>
+    List<? extends T> source) {                     Source PRODUCES data. We only read from it. Could be List<Integer> when T = Number
+    for (T item : source) {
+        destination.add(item);}}
+This uses the PECS rule: Producer → extends. Consumer → super
