@@ -1,0 +1,66 @@
+public class Employee { 
+    private int id; 
+    private String name; 
+    private String department; 
+    private double salary; 
+    private String email; 
+    private List<String> skills; 
+    public int getId() { 
+        return id; } 
+    public String getName() { 
+        return name; } 
+    public String getDepartment() { 
+        return department; } 
+    public double getSalary() { 
+        return salary; } 
+    public String getEmail() { 
+        return email; } 
+    public List<String> getSkills() { 
+        return skills; } }
+
+1) List<String> list = Arrays.asList("Java", "Python", "C++");
+String result = list.stream().collect(Collectors.joining(", "));
+
+2) Map<Integer, String> map = employees.stream().collect(Collectors.toMap(Employee::getId, Employee::getName));
+
+3) Map<String, List<Employee>> grouped = employees.stream().collect(Collectors.groupingBy(Employee::getDepartment));
+
+4) Map<String, Long> count =employees.stream().collect(Collectors.groupingBy(Employee::getDepartment, Collectors.counting()));
+
+5) Map<String, Double> avgSalary =employees.stream().collect(Collectors.groupingBy(Employee::getDepartment, Collectors.averagingDouble(Employee::getSalary)));
+
+6) List<Integer> numbers = Arrays.asList(1,2,3,4,5,6);
+Map<Boolean, List<Integer>> partitioned =numbers.stream().collect(Collectors.partitioningBy(n -> n % 2 == 0));
+partitioningBy() splits into two groups (true/false) true: even, false: odd
+
+7) Map<Boolean, List<Employee>> partitioned =employees.stream().collect(Collectors.partitioningBy(e -> e.getSalary() > 50000));
+
+8) Map<String, Optional<Employee>> highest =employees.stream().collect(Collectors.groupingBy(Employee::getDepartment,Collectors.maxBy(Comparator.comparing(Employee::getSalary))));
+
+9) Map<String, List<String>> names =employees.stream().collect(Collectors.groupingBy(Employee::getDepartment,Collectors.mapping(Employee::getName, Collectors.toList())));
+
+11) List<Integer> flat =nested.stream().flatMap(List::stream).collect(Collectors.toList());
+
+12) List<String> sentences = Arrays.asList("Java is good", "Streams are powerful");
+    List<String> words =sentences.stream().flatMap(s -> Arrays.stream(s.split(" "))).collect(Collectors.toList());
+
+13) Set<String> skills =employees.stream().flatMap(e -> e.getSkills().stream()).collect(Collectors.toSet());
+
+14) class Order {
+    List<String> items;
+    public List<String> getItems() { return items; }
+}
+int totalItems =orders.stream().mapToInt(order -> order.getItems().size()).sum();
+
+15) int sum =nested.stream().flatMap(List::stream).mapToInt(Integer::intValue).sum();
+
+16) int product =numbers.stream().reduce(1, (a, b) -> a * b);
+
+17) Optional<String> longest =list.stream().reduce((s1, s2) -> s1.length() > s2.length() ? s1 : s2);
+
+18) String result =list.stream().reduce("", (a, b) -> a + b);
+
+19) Optional<Double> max =salaries.stream().reduce(Double::max);
+
+20)Map<String, Integer> merged =maps.stream().reduce(new HashMap<>(), (map1, map2) -> {map2.forEach((key, value) ->map1.merge(key, value, Integer::sum));
+                return map1;});
